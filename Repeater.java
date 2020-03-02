@@ -1,7 +1,7 @@
 package LogicAndDataTypes;
 import java.util.*;
 
-public class Testers {
+public class Repeater {
     /**
      * @author Chase P. Miller
      * @version Version 1.0.1
