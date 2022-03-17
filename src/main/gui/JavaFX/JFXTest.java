@@ -1,10 +1,8 @@
 package main.gui.JavaFX;
 
 import javafx.application.Application;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -12,8 +10,6 @@ import javafx.geometry.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import java.io.*;
-import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
 import javafx.stage.FileChooser;
 import javafx.stage.DirectoryChooser;
 

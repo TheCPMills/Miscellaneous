@@ -1,0 +1,13 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Launch JFXTest",
+            "request": "launch",
+            "mainClass": "main.gui.JavaFX.JFXTest",
+            "vmArgs": "--module-path C:/Users/cpmil/javafx-sdk-17.0.2/lib --add-modules javafx.controls,javafx.fxml",
+            "projectName": "Miscellaneous_7335e159"
+        }
+    ]
+    
+}
