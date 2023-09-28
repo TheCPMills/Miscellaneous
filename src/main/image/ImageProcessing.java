@@ -1,32 +1,115 @@
 package main.image;
-import java.io.*;
-import javax.imageio.ImageIO;
-import java.util.*;
-import java.util.List;
-import java.awt.image.BufferedImage;
-import java.awt.*;
+
+import main.convolution.*;
 import main.util.*;
 
+import java.awt.*;
+import java.awt.image.*;
+import java.io.*;
+import javax.imageio.*;
+import java.util.*;
+import java.util.List;
+
 public class ImageProcessing {
-    BufferedImage img;
-    
-    public ImageProcessing(int width, int height) {
+    public static BufferedImage imageFromPixelMatrix(Color[][] pixelMatrix) {
+        int height = pixelMatrix.length;
+        int width = pixelMatrix[0].length;
+
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                image.setRGB(j, i, pixelMatrix[i][j].getRGB());
+            }
+        }
+
+        return image;
     }
 
-    public static void main(String args[]) throws IOException {
-        pixelate("squiddy.jpg", 44, 25);
-        pixelateAndShrink("squiddy.jpg", 44, 25); 
-
-    }
-
-    public static void pixelate(String fileName, int rows, int columns) throws IOException {
-        File file = new File("assets/images/" + fileName);
+    public static BufferedImage resize(String fileName, int targetWidth, int targetHeight) throws IOException {
+        File file = new File(fileName);
         BufferedImage image = ImageIO.read(file);
 
-        pixelateAndShrink(image, rows, columns);
+        return resize(image, targetWidth, targetHeight);
     }
 
-    public static void pixelate(BufferedImage image, int rows, int columns) {
+    public static BufferedImage resize(BufferedImage originalImage, int targetWidth, int targetHeight) throws IOException {
+        BufferedImage resultingImage = originalImage;
+
+        resultingImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = resultingImage.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.drawImage(originalImage, 0, 0, targetWidth, targetHeight, 0, 0, originalImage.getWidth(),
+                originalImage.getHeight(), null);
+        g.dispose();
+
+        try {
+            ImageIO.write(resultingImage, "png", new File("resizedImage.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return resultingImage;
+    }
+
+    public static BufferedImage filter(String fileName, double[][] kernel) throws IOException {
+        File file = new File(fileName);
+        BufferedImage image = ImageIO.read(file);
+
+        return filter(image, kernel);
+    }
+
+    public static BufferedImage filter(BufferedImage image, double[][] kernel) throws IllegalArgumentException {
+        // ensure that the kernel has odd dimensions
+        if (kernel.length % 2 == 0 || kernel[0].length % 2 == 0) {
+            throw new IllegalArgumentException("Kernel dimensions must be odd");
+        }
+
+        Color[][] pixels = pixelColorMatrix(image);
+
+        double[][] pixelsRed = Arrays.stream(pixels).map(row -> Arrays.stream(row).mapToDouble(pixel -> pixel.getRed()).toArray()).toArray(double[][]::new);
+        double[][] pixelsGreen = Arrays.stream(pixels).map(row -> Arrays.stream(row).mapToDouble(pixel -> pixel.getGreen()).toArray()).toArray(double[][]::new);
+        double[][] pixelsBlue = Arrays.stream(pixels).map(row -> Arrays.stream(row).mapToDouble(pixel -> pixel.getBlue()).toArray()).toArray(double[][]::new);
+
+        double[][] convolvedRed, convolvedGreen, convolvedBlue;
+
+        convolvedRed = Convolution.convolve(pixelsRed, kernel);
+        convolvedGreen = Convolution.convolve(pixelsGreen, kernel);
+        convolvedBlue = Convolution.convolve(pixelsBlue, kernel);
+
+        double[][] convolved = new double[convolvedRed.length][convolvedRed[0].length];
+        for (int i = 0; i < convolvedRed.length; i++) {
+            for (int j = 0; j < convolvedRed[0].length; j++) {
+                convolved[i][j] = ((int) convolvedRed[i][j] << 16) + ((int) convolvedGreen[i][j] << 8) + convolvedBlue[i][j];
+            }
+        }
+
+        Color[][] pixelColorsMatrix = new Color[convolved.length][convolved[0].length];
+        for (int i = 0; i < convolved.length; i++) {
+            for (int j = 0; j < convolved[0].length; j++) {
+                pixelColorsMatrix[i][j] = new Color((int) convolved[i][j]);
+            }
+        }
+
+        BufferedImage img = imageFromPixelMatrix(pixelColorsMatrix);
+
+        try {
+            ImageIO.write(img, "png", new File("filteredImage.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return img;
+    }
+
+    public static BufferedImage pixelate(String fileName, int rows, int columns) throws IOException {
+        File file = new File(fileName);
+        BufferedImage image = ImageIO.read(file);
+
+        return pixelate(image, rows, columns);
+    }
+
+    public static BufferedImage pixelate(BufferedImage image, int rows, int columns) {
         int height = image.getHeight();
         int width = image.getWidth();
 
@@ -73,20 +156,22 @@ public class ImageProcessing {
             }
         }
         try {
-            ImageIO.write(img, "png", new File("assets/images/image.png"));
+            ImageIO.write(img, "png", new File("assets/images/pixelatedImage.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return img;
     }
 
-    public static void pixelateAndShrink(String fileName, int rows, int columns) throws IOException {
-        File file = new File("assets/images/" + fileName);
+    public static BufferedImage pixelateAndShrink(String fileName, int rows, int columns) throws IOException {
+        File file = new File(fileName);
         BufferedImage image = ImageIO.read(file);
 
-        pixelateAndShrink(image, rows, columns);
+        return pixelateAndShrink(image, rows, columns);
     }
 
-    public static void pixelateAndShrink(BufferedImage image, int rows, int columns) {
+    public static BufferedImage pixelateAndShrink(BufferedImage image, int rows, int columns) {
         int pixHeight = rows;
         int pixWidth = columns;
 
@@ -130,20 +215,49 @@ public class ImageProcessing {
             }
         }
         try {
-            ImageIO.write(img, "png", new File("assets/images/pixelatedImage.png"));
+            ImageIO.write(img, "png", new File("assets/images/pixelatedShrunkImage.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return img;
     }
 
-    public static List<Color> listPixels(String fileName) throws IOException {
-        File file = new File("assets/images/" + fileName);
+    public static Color[][] pixelColorMatrix(String filename) throws IOException {
+        File file = new File(filename);
         BufferedImage image = ImageIO.read(file);
 
-        return listPixels(image);
+        return pixelColorMatrix(image);
     }
 
-    public static List<Color> listPixels(BufferedImage image) {
+    public static Color[][] pixelColorMatrix(BufferedImage image) {
+        int height = image.getHeight();
+        int width = image.getWidth();
+
+        Color[][] matrix = new Color[height][width];
+
+        for (int row = 0; row < height; row++) {
+            for (int column = 0; column < width; column++) {
+                int clr = image.getRGB(column, row);
+                int red = (clr & 0x00ff0000) >> 16;
+                int green = (clr & 0x0000ff00) >> 8;
+                int blue = clr & 0x000000ff;
+
+                matrix[row][column] = new Color(red, green, blue);
+            }
+        }
+
+        return matrix;
+    }
+
+    public static List<Color> listPixelColors(String fileName) throws IOException {
+        File file = new File(fileName);
+        BufferedImage image = ImageIO.read(file);
+
+        return listPixelColors(image);
+    }
+
+    public static List<Color> listPixelColors(BufferedImage image) {
         List<Color> pixelColors = new LinkedList<>();
         int height = image.getHeight();
         int width = image.getWidth();
@@ -157,14 +271,14 @@ public class ImageProcessing {
         return pixelColors;
     }
 
-    public static List<Color> spiral(String fileName) throws IOException {
-        File file = new File("assets/images/" + fileName);
+    public static List<Color> listPixelColorsSpiral(String fileName) throws IOException {
+        File file = new File(fileName);
         BufferedImage image = ImageIO.read(file);
 
-        return spiral(image);
+        return listPixelColorsSpiral(image);
     }
 
-    public static List<Color> spiral(BufferedImage image) {
+    public static List<Color> listPixelColorsSpiral(BufferedImage image) {
         List<Color> pixelColors = new LinkedList<>();
         int height = image.getHeight(), width = image.getWidth();
         int i, row = 0, column = 0;
@@ -192,6 +306,32 @@ public class ImageProcessing {
                     pixelColors.add(new Color(image.getRGB(column, i)));
                 }
                 column++;
+            }
+        }
+
+        return pixelColors;
+    }
+
+    public static List<Color> listPixelColorsSnake(String fileName) throws IOException {
+        File file = new File(fileName);
+        BufferedImage image = ImageIO.read(file);
+
+        return listPixelColorsSnake(image);
+    }
+
+    public static List<Color> listPixelColorsSnake(BufferedImage image) {
+        List<Color> pixelColors = new LinkedList<>();
+        int height = image.getHeight(), width = image.getWidth();
+
+        for (int row = 0; row < height; row++) {
+            if (row % 2 == 0) {
+                for (int column = 0; column < width; column++) {
+                    pixelColors.add(new Color(image.getRGB(column, row)));
+                }
+            } else {
+                for (int column = width - 1; column >= 0; column--) {
+                    pixelColors.add(new Color(image.getRGB(column, row)));
+                }
             }
         }
 

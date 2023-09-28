@@ -1,18 +1,9 @@
 package main.math;
-import javax.vecmath.*;
 
 public class MathOps {
     public static final double π = Math.PI;
     public static final double e = Math.E;
     public static final double i = Math.pow(-1, 0.5);
-
-    public static double distance(Point4d p1, Point4d p2) {
-        double x = pow((p1.x - p2.x), 2);
-        double y = pow((p1.y - p2.y), 2);
-        double z = pow((p1.z - p2.z), 2);
-        double w = pow((p1.w - p2.w), 2);
-        return pow((x + y + z + w), 0.5);
-    }
 
     public static double pow(double base, double exponent) {
         return Math.pow(base, exponent);

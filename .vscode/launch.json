@@ -2,6 +2,41 @@
     "configurations": [
         {
             "type": "java",
+            "name": "ColorValueSliderControl",
+            "request": "launch",
+            "mainClass": "main.color.ColorValueSliderControl",
+            "projectName": "Miscellaneous_7335e159"
+        },
+        {
+            "type": "java",
+            "name": "ColorPicker",
+            "request": "launch",
+            "mainClass": "main.color.ColorPicker",
+            "projectName": "Miscellaneous_7335e159"
+        },
+        {
+            "type": "java",
+            "name": "ColorChooser",
+            "request": "launch",
+            "mainClass": "main.color.ColorChooser",
+            "projectName": "Miscellaneous_7335e159"
+        },
+        {
+            "type": "java",
+            "name": "GradientPaintDemo2D",
+            "request": "launch",
+            "mainClass": "main.color.GradientPaintDemo2D",
+            "projectName": "Miscellaneous_7335e159"
+        },
+        {
+            "type": "java",
+            "name": "ColorOps",
+            "request": "launch",
+            "mainClass": "main.color.ColorOps",
+            "projectName": "Miscellaneous_7335e159"
+        },
+        {
+            "type": "java",
             "name": "Launch JFXTest",
             "request": "launch",
             "mainClass": "main.gui.JavaFX.JFXTest",

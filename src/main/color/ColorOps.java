@@ -1,21 +1,17 @@
 package main.color;
-import main.math.MathOps;
+
+import main.math.*;
 import java.awt.*;
 
 public class ColorOps {
-    private int hex;
-    private int[] rgb;
-    private float[] hsv;
-    private float[] hsl;
-    private int[] cmyk;
-    private float alpha;
+    // Color functions
+    public static float getAlpha(Color color) {
+        return color.getAlpha() / 255.0f;
+    }
 
-    public ColorOps(int hex) {
-        this.hex = hex;
-        this.rgb = hexToRGB(hex);
-        this.hsv = hexToHSV(hex);
-        this.hsl = hexToHSL(hex);
-        this.cmyk = hexToCMYK(hex);
+    public static int[] getRGB(Color color) {
+        int clr = color.getRGB();
+        return new int[] { ((clr & 0x00FF0000) >> 16), ((clr & 0x0000ff00) >> 8), (clr & 0x000000ff) };
     }
 
     // Hex functions
@@ -109,7 +105,7 @@ public class ColorOps {
         float sBlue = RGB[2] / 255.0f;
 
         float black = 1 - (float) MathOps.max(sRed, sGreen, sBlue);
-        
+
         CMYK[0] = (int) MathOps.round((1 - sRed - black) / (1 - black) * 100);
         CMYK[1] = (int) MathOps.round((1 - sGreen - black) / (1 - black) * 100);
         CMYK[2] = (int) MathOps.round((1 - sBlue - black) / (1 - black) * 100);
@@ -122,7 +118,7 @@ public class ColorOps {
     public static int hsvToHex(float[] hsv) {
         return rgbToHex(hsvToRGB(hsv));
     }
-    
+
     public static int[] hsvToRGB(float[] hsv) {
         int[] RGB = new int[3];
         float sRED, sGreen, sBlue;
@@ -239,7 +235,7 @@ public class ColorOps {
 
     public static int[] cmykToRGB(int[] cmyk) {
         int[] RGB = new int[3];
-        
+
         RGB[0] = (int) MathOps.round((1 - cmyk[0] / 100f) * (1 - cmyk[3] / 100f) * 255);
         RGB[1] = (int) MathOps.round((1 - cmyk[1] / 100f) * (1 - cmyk[3] / 100f) * 255);
         RGB[2] = (int) MathOps.round((1 - cmyk[2] / 100f) * (1 - cmyk[3] / 100f) * 255);
@@ -275,18 +271,8 @@ public class ColorOps {
         return sepiaRGB;
     }
 
-    // Color functions
-    public static float getAlpha(Color color) {
-        return color.getAlpha() / 255.0f;
-    }
-
-    public static int[] getRGB(Color color) {
-        int clr = color.getRGB();
-        return new int[] { ((clr & 0x00FF0000) >> 16), ((clr & 0x0000ff00) >> 8), (clr & 0x000000ff) };
-    }
-
     public static void main(String[] args) {
-        int HEX; 
+        int HEX;
         int[] RGB;
         float[] HSV;
         float[] HSL;
@@ -303,7 +289,7 @@ public class ColorOps {
         System.out.println("HSL: " + (int) HSL[0] + "°, " + HSL[1] + "%, " + HSL[2] + "%");
         System.out.println("CMYK: " + CMYK[0] + "%, " + CMYK[1] + "%, " + CMYK[2] + "%, " + CMYK[3] + "%");
 
-        RGB = new int[]{64, 32, 128};
+        RGB = new int[] { 64, 32, 128 };
         HEX = rgbToHex(RGB);
         HSV = rgbToHSV(RGB);
         HSL = rgbToHSL(RGB);
@@ -314,7 +300,7 @@ public class ColorOps {
         System.out.println("HSL: " + (int) HSL[0] + "°, " + HSL[1] + "%, " + HSL[2] + "%");
         System.out.println("CMYK: " + CMYK[0] + "%, " + CMYK[1] + "%, " + CMYK[2] + "%, " + CMYK[3] + "%");
 
-        HSV = new float[]{72f, 88.5f, 80.625f};
+        HSV = new float[] { 72f, 88.5f, 80.625f };
         HEX = hsvToHex(HSV);
         RGB = hsvToRGB(HSV);
         HSL = hsvToHSL(HSV);
@@ -325,7 +311,7 @@ public class ColorOps {
         System.out.println("HSL: " + (int) HSL[0] + "°, " + HSL[1] + "%, " + HSL[2] + "%");
         System.out.println("CMYK: " + CMYK[0] + "%, " + CMYK[1] + "%, " + CMYK[2] + "%, " + CMYK[3] + "%");
 
-        HSL = new float[]{10f, 90.1f, 56.8f};
+        HSL = new float[] { 10f, 90.1f, 56.8f };
         HEX = hslToHex(HSL);
         RGB = hslToRGB(HSL);
         HSV = hslToHSV(HSL);
@@ -336,7 +322,7 @@ public class ColorOps {
         System.out.println("HSL: 10°, 90.1%, 56.8%");
         System.out.println("CMYK: " + CMYK[0] + "%, " + CMYK[1] + "%, " + CMYK[2] + "%, " + CMYK[3] + "%");
 
-        CMYK = new int[]{80, 50, 10, 40};
+        CMYK = new int[] { 80, 50, 10, 40 };
         HEX = cmykToHex(CMYK);
         RGB = cmykToRGB(CMYK);
         HSV = cmykToHSV(CMYK);
